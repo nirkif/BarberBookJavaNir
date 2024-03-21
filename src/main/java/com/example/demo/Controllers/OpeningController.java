@@ -26,6 +26,13 @@ public class OpeningController{
         this.userRepository = userRepository;
     }
 
+    //                ||   OPENING MAPPING    ||
+    //                ||                      ||
+    //                ||                      ||
+    //                ||    POST REQUESTS     ||
+    //                ||                      ||
+
+
     @PostMapping("/addOpening")
     void newOpening(@RequestBody String body)
     {
@@ -116,6 +123,12 @@ public class OpeningController{
         }
     }
 
+
+    //                ||                      ||
+    //                ||    GET REQUESTS      ||
+    //                ||                      ||
+
+
     @GetMapping("/allOpenings/")
     List<Opening> allOpenings()
     {
@@ -166,6 +179,13 @@ public class OpeningController{
 
 
     }
+
+
+    //               ||                       ||
+    //               ||   DELETE REQUESTS     ||
+    //               ||                       ||
+
+
     @DeleteMapping("/deleteOpening")
 
     String deleteUserByID(@RequestBody String body)
