@@ -8,11 +8,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Entity
 @Document("bookings")
 public class Booking {
 
-//    @GeneratedValue
     @Id
     private String id;
     private String username;
@@ -41,14 +39,7 @@ public class Booking {
     }
 
     private  int price;
-
-//    public Booking(String barberUsername, String username,String openingId,int price) {
-//        this.username = username;
-//        this.barberUsername = barberUsername;
-//        this.openingId = openingId;
-//        this.price = price;
-//
-//    }
+ }
     public Booking(String barberUsername, String username,String openingId,int price,String openingInfo)
     {
         this.username = username;

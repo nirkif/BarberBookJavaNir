@@ -30,32 +30,20 @@ public class BookingController {
     private final IOpeningRepository openingRepository;
     private final IUserRepository userRepository;
     private final int bookingPrice = 60;
-
-
     BookingController(@Autowired IOpeningRepository openingRepository,@Autowired IUserRepository userRepository, @Autowired IBookingRepository bookingRepository) {
         this.openingRepository = openingRepository;
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
     }
     @CrossOrigin(origins = "*")
-    @GetMapping("/getMyBooking/{username}")
-    List<Booking> getMyBooking(@PathVariable String username)
-    {
-        List<Booking> bookingList = new ArrayList<>();
-        for (Booking booking:bookingRepository.findBookingsByusername(username))
-        {
-            if(isDatedV2(booking.getOpeningId()))
-                bookingList.add(booking);
-        }
-        System.out.println("fetched bookings for "+username+".\n");
-        return bookingList;
-    }
-    @GetMapping("/getBarberBooking/{barberUsername}")
-    List<Booking> getBarberBooking(@PathVariable String barberUsername)
-    {
-        System.out.println("fetching "+barberUsername+" barber bookings.\n");
-        return bookingRepository.findBookingsByBarberUsername(barberUsername);
-    }
+
+
+    //                ||   BOOKING MAPPING    ||
+    //                ||                      ||
+    //                ||                      ||
+    //                ||    POST REQUESTS     ||
+    //                ||                      ||
+
 
     @PostMapping("/setBookingV2")
     String newOpeningV2(@RequestBody String body)
@@ -114,58 +102,34 @@ public class BookingController {
         return true; // only if true will show the booking
     }
 
-    boolean isDatedV2(String openingId)
+
+    //                ||                      ||
+    //                ||    GET REQUESTS      ||
+    //                ||                      ||
+
+
+    @GetMapping("/getMyBooking/{username}")
+    List<Booking> getMyBooking(@PathVariable String username)
     {
-        if(openingRepository.findOpeningByID(openingId).startTime.isBefore(LocalDateTime.now()))
+        List<Booking> bookingList = new ArrayList<>();
+        for (Booking booking:bookingRepository.findBookingsByusername(username))
         {
-            return false;
+            if(isDatedV2(booking.getOpeningId()))
+                bookingList.add(booking);
         }
-        return true;
+        System.out.println("fetched bookings for "+username+".\n");
+        return bookingList;
     }
+    @GetMapping("/getBarberBooking/{barberUsername}")
+    List<Booking> getBarberBooking(@PathVariable String barberUsername)
+    {
+        System.out.println("fetching "+barberUsername+" barber bookings.\n");
+        return bookingRepository.findBookingsByBarberUsername(barberUsername);
+    }
+    //                ||                      ||
+    //                ||   DELETE REQUESTS    ||
+    //                ||                      ||
 
-
-
-
-//    @PostMapping("/setBooking")
-//    String newOpening(@RequestBody String body)
-//    {
-//        JSONObject jsonObject = new JSONObject(body);
-//        System.out.println(body);
-//        Opening opening = null;
-//        Booking newBooking = null;
-//        try {
-//            opening = openingRepository.findOpeningByID(jsonObject.getString("openingId"));
-//            if(opening.getAvailability() == false)
-//            {
-//                return "already booked "+opening.getId();
-//            }
-//            else {
-//                opening.setAvailability(false);
-//                openingRepository.save(opening);
-//            }
-//        }
-//        catch (Exception e){
-//            System.out.println(e.toString());
-//            return "invalid opening id";
-//        }
-//        try {
-//
-//            newBooking = new Booking(jsonObject.getString("barberUsername"), jsonObject.getString("username"), jsonObject.getString("openingId"),bookingPrice);
-//            bookingRepository.save(newBooking);
-//            return "new Booking created successfully ";
-//        }
-//        catch (Exception err){
-//            try {
-//                opening.setAvailability(true);
-//                openingRepository.save(opening);
-//            }
-//            catch (Exception error){
-//                System.out.println(error.toString()+"\nFATAL error: booking not succeed and opening is not available "+opening.getId());
-//            }
-//            System.out.println(err.toString());
-//        }
-//        return "succefully booked "+newBooking.getId()+"on opening "+newBooking.getOpeningId();
-//    }
 
     @DeleteMapping("/deleteBooking")
 
@@ -194,8 +158,17 @@ public class BookingController {
         return "Booking "+bookingId+" has been deleted.";
     }
 
-
-
+    //                ||                      ||
+    //                ||      AUXILIARY       ||
+    //                ||                      ||
+    boolean isDatedV2(String openingId)
+    {
+        if(openingRepository.findOpeningByID(openingId).startTime.isBefore(LocalDateTime.now()))
+        {
+            return false;
+        }
+        return true;
+    }
 
 
 
