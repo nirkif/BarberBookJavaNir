@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Document("users")
 public class Customer extends User{
-    public Customer(@RequestBody User newCustomer){
+    public Customer(@RequestBody User newCustomer){ // שימוש בפונקציות של USER (אב) ליצירת אובייקט שונה
         super(newCustomer.getUsername(), newCustomer.getName(), newCustomer.getPhoneNum());
         newCustomer.toString();
     }

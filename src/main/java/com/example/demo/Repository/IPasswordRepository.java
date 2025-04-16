@@ -10,9 +10,6 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 
 public interface IPasswordRepository extends MongoRepository<Password,String > {
-    @Query("{ 'username' : '?0' }")
-    Password findByuserName(String username);
-
     @Query("{username:'?0'}")
     List<Password> findPassByUsername(String username);
 }

@@ -11,16 +11,8 @@ public class Password {
     private String username;
     private String encryptedPassword;
 
-    private int offSet= LocalDateTime.now().getSecond();
-//    public Password(String username,String regularPassword)
-//    {
-//        System.out.println("fucking builder");
-//        this.regularPassword = regularPassword;
-//        this.username = username;
-//        this.encryptedPassword = encryption.caesarEncrypt(this.regularPassword,offSet);
-//
-//        System.out.println("encryption: "+encryptedPassword);
-//    }
+    private int offSet = LocalDateTime.now().getSecond();
+
     public Password(String username, String encryptedPassword,int offSet)
     {
         this.username = username;
@@ -30,8 +22,6 @@ public class Password {
     public String getUsername() {return this.username;}
     public String getEncryptedPassword() {return this.encryptedPassword;}
     public int getOffSet(){return this.offSet;}
-
-    //public boolean compare(String pass) { return (encryption.caesarEncrypt(pass,offSet) == this.encryptedPassword);}
 
 
 }

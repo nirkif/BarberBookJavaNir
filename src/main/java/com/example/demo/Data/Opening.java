@@ -54,8 +54,8 @@ public class Opening {  //    every opening must have half an hour
                 Integer.parseInt(startTime)// hours
                 ,0);
 
-        this.startTime = date;//date.toString().split("T")[0]+" "+date.toString().split("T")[1];
-        this.endTime = date.plusMinutes(30);//date.toString().split("T")[0]+" "+date.toString().split("T")[1];;
+        this.startTime = date;
+        this.endTime = date.plusMinutes(30);
         this.openingInfo = " "+date.toString().split("T")[0]
                 +"\n"+date.toString().split("T")[1]+" - "+endTime.toString().split("T")[1];
 
@@ -74,14 +74,14 @@ public class Opening {  //    every opening must have half an hour
                 Integer.parseInt(startTime)// hours
                 ,Integer.parseInt(startTimeMinutes));
 
-        this.startTime = date;//date.toString().split("T")[0]+" "+date.toString().split("T")[1];
-        this.endTime = date.plusMinutes(30);//date.toString().split("T")[0]+" "+date.toString().split("T")[1];;
+        this.startTime = date;
+        this.endTime = date.plusMinutes(30);
         this.openingInfo = " "+date.toString().split("T")[0]
                 +"\n"+date.toString().split("T")[1]+" - "+endTime.toString().split("T")[1];
 
         this.barberUserName = userName;
         this.barberName = name;
-        //dateShown = ts.toString().substring(0, 19);
+
         System.out.println(openingInfo);
     }
     public Opening(String userName, String name, String startTime,String startTimeMinutes,String dayOfMonth,String month)

@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 //
 public interface IOpeningRepository extends MongoRepository<Opening, String>{
-//    Opening findAllByBarber(String barberName);
 
     @Query(value="{category:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
     Opening findAll(String category);

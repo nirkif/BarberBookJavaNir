@@ -39,7 +39,7 @@ public class UserController{
     //                ||    POST REQUESTS     ||
     //                ||                      ||
 
-    @PostMapping("/addUser")
+    @PostMapping("/addUser")                        // הוספת משתמש
     User newUser(@RequestBody String body)
     {
         JSONObject jsonObject = new JSONObject(body);
@@ -48,16 +48,16 @@ public class UserController{
             int offSet = LocalDateTime.now().getSecond();
             User newUser = new User(jsonObject.getString("username"),jsonObject.getString("name"),jsonObject.getString("phoneNumber"));
             User user= repository.findUserByUserName(newUser.getUsername());
-            System.out.println("User != null : "+user != null);
             if(user != null){
                 throw new UserException("addUser function error, Username already exists");
             }
             String p = encryption.caesarEncrypt(jsonObject.getString("password"),offSet);
             Password pass = new Password(jsonObject.getString("username"),p,offSet);
-            System.out.println("new user created: ");
             System.out.println(newUser.toString());
             passRepository.save(pass);
+            System.out.println("new user created: ");
             return repository.save(newUser);
+
         }
         catch (Exception err)
         {
@@ -66,23 +66,23 @@ public class UserController{
         }
     }
 
-    @PostMapping("/checkPassword")
+    @PostMapping("/checkPassword")              // בדיקת סיסמה אם קלט
     boolean checkPassword(@RequestBody String body)
     {
         JSONObject object = new JSONObject(body);
         Password p = passRepository.findPassByUsername(object.getString("username")).get(0);
+        //System.out.println("password found from "+object.getString("username")+" = "+ encryption.caesarEncrypt(p.getEncryptedPassword(),-p.getOffSet()));
         String toCompare = encryption.caesarEncrypt(object.getString("password"),p.getOffSet());
         if(p.getEncryptedPassword().equals(toCompare))
         {
-            System.out.println("correct");
+            System.out.println("returning TRUE  for password field");
             return true;
         }
-        System.out.println("incorrect");
+        System.out.println("returning FALSE  for password field");
         return false;
-
     }
 
-    @PostMapping("/changeProfilePicture")
+    @PostMapping("/changeProfilePicture")       // שינוי תמונת פרופיל
     void changeProfilePicture(@RequestBody String body)
     {
         JSONObject object = new JSONObject(body);
@@ -96,13 +96,13 @@ public class UserController{
     //                ||    GET REQUESTS      ||
     //                ||                      ||
 
-    @GetMapping("/allUsers")
+    @GetMapping("/allUsers")            // כל המשתמשים
     List<User> all()
     {
         System.out.println("fetching all users.");
         return repository.findAll();
     }
-    @GetMapping("/onlyUsers")
+    @GetMapping("/onlyUsers")           // רק משתמשים
     List<User> onlyUsers()
     {
         List<User> users = new ArrayList<>();
@@ -126,7 +126,7 @@ public class UserController{
 
     @CrossOrigin(origins = "*")
     @GetMapping("/findByUserName/{userName}")
-    User getUserByUserName(@PathVariable String userName)
+    User getUserByUserName(@PathVariable String userName)           // קבלת משתמש לפי שם משתמש
     {
         System.out.println("username to search: "+userName);
         try
@@ -146,7 +146,7 @@ public class UserController{
             throw new UserException("findByUserName function error, something went wrong in the process");
         }
     }
-    @GetMapping("/findByID/{id}")
+    @GetMapping("/findByID/{id}")                   // קבלת משתמש לפי ID
     User getUserByID(@PathVariable String id)
     {
         try
@@ -167,7 +167,7 @@ public class UserController{
     //                ||   DELETE REQUESTS    ||
     //                ||                      ||
 
-    @DeleteMapping("/deleteUser")
+    @DeleteMapping("/deleteUser")           // מחיקת משתמש
 
     Void deleteUserByID(@RequestBody String body)
     {
@@ -198,26 +198,7 @@ public class UserController{
     //                ||                      ||
     //                ||    POST REQUESTS     ||
     //                ||                      ||
-
-    @PostMapping("/addBarber")
-    User newBarber(@RequestBody Barber newBarber)
-    {
-        System.out.println("\nnew Barber");
-        Barber b = newBarber;
-        try
-        {
-            System.out.println("added barber: ");
-            System.out.println(b.toString());
-            return repository.save(newBarber);
-        }
-        catch (Exception err)
-        {
-            System.out.println(err.toString());
-            return null;
-        }
-    }
-
-    @PostMapping("/addBarberFromUserId")
+    @PostMapping("/addBarberFromUserId")                    // הוספת ספר מID של משתמש
     Barber userToBarber(@RequestBody String body)
     {
         JSONObject object = new JSONObject(body);
@@ -250,7 +231,7 @@ public class UserController{
     //                ||    GET  REQUESTS     ||
     //                ||                      ||
 
-    @GetMapping("/allBarbers")
+    @GetMapping("/allBarbers")          // כל הספרים
     List<User> allBarbers()
     {
         List<User> barbers = new ArrayList<>();

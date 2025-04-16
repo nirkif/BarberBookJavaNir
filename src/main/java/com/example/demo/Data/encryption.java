@@ -11,14 +11,14 @@ import java.security.spec.KeySpec;
 public class encryption
 {
 
-    public String caesarEncrypt(String pass,int offSet)
+    public String caesarEncrypt(String pass,int offSet) // צופן קייסר שמקבל את הסיסמה ומספר ראנדומלי
     {
-        String cipher="";
+        String cipher=""; // צופן
         for(int i=0;i<pass.length();i++)
         {
-            int hashedChar = ((int)i + offSet)%128;
+            int hashedChar = ((int)pass.charAt(i) + offSet)%128;
             char newChar = (char)hashedChar;
-            cipher = cipher +newChar;
+            cipher = cipher + newChar;
         }
         return cipher;
     }

@@ -3,7 +3,7 @@ package com.example.demo.Utility;
 import java.util.Date;
 import java.sql.Timestamp;
 
-public class GetTimeStamp {
+public class GetTimeStamp { //פונקציה שמחזירה את הזמן
     private Date date = new Date();
     private long time = date.getTime();
 
