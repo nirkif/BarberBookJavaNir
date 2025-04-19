@@ -30,38 +30,42 @@ public class Opening {  //    every opening must have half an hour
 
     public String openingInfo;
     public LocalDateTime timeStamp;
+
     public String getId() {
         return id;
     }
+
     public String getBarberUserName(){ return this.barberUserName; }
+
     public void setBarberUserName(String userName) { this.barberUserName = userName; }
 
     public String getBarberName(){ return this.barberName; }
+
     public void setBarberName(String name) { this.barberName = name; }
 
-
     public boolean getAvailability(){return this.isAvailable; }
+
     public void setAvailability(boolean status) { this.isAvailable = status; }
 
-
     public Opening(){}
+
     public Opening(String userName,String name,String startTime)
     {
         timeStamp = LocalDateTime.now();
         LocalDateTime date = LocalDateTime.of(timeStamp.getYear(),
                 timeStamp.getMonth(),
                 timeStamp.getDayOfMonth(),
-                Integer.parseInt(startTime)// hours
-                ,0);
+                Integer.parseInt(startTime)//  ---> hours
+                ,0);// -----> min
 
         this.startTime = date;
         this.endTime = date.plusMinutes(30);
         this.openingInfo = " "+date.toString().split("T")[0]
                 +"\n"+date.toString().split("T")[1]+" - "+endTime.toString().split("T")[1];
 
+
         this.barberUserName = userName;
         this.barberName = name;
-        //dateShown = ts.toString().substring(0, 19);
         System.out.println(openingInfo);
 
     }
@@ -72,7 +76,7 @@ public class Opening {  //    every opening must have half an hour
                 timeStamp.getMonth(),
                 timeStamp.getDayOfMonth(),
                 Integer.parseInt(startTime)// hours
-                ,Integer.parseInt(startTimeMinutes));
+                ,Integer.parseInt(startTimeMinutes));// min
 
         this.startTime = date;
         this.endTime = date.plusMinutes(30);

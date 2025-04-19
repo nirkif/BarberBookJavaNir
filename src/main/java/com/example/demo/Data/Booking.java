@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Entity
 @Document("bookings")
 public class Booking { // אובייקט מסוג תור לא פנוי
 
-//    @GeneratedValue
     @Id
     protected String id;
 
@@ -49,6 +47,7 @@ public class Booking { // אובייקט מסוג תור לא פנוי
     }
 
     public Booking(String barberUsername, String username,String openingId,int price,String openingInfo,LocalDateTime startTime,LocalDateTime endTime) // בנאי
+
     {
         this.username = username;
         this.barberUsername = barberUsername;

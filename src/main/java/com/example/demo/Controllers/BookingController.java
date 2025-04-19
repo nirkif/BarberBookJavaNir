@@ -24,10 +24,6 @@ public class BookingController {
     private final IOpeningRepository openingRepository;
     private final IUserRepository userRepository;
     private final int bookingPrice = 60;
-
-
-
-
     BookingController(@Autowired IOpeningRepository openingRepository,@Autowired IUserRepository userRepository, @Autowired IBookingRepository bookingRepository) {
         this.openingRepository = openingRepository;
         this.bookingRepository = bookingRepository;
@@ -180,8 +176,18 @@ public class BookingController {
             deleteBookingByID(openingId);
             return false;
         }
-        return true;
+        System.out.println("fetched bookings for "+username+".\n");
+        return bookingList;
     }
+    @GetMapping("/getBarberBooking/{barberUsername}")
+    List<Booking> getBarberBooking(@PathVariable String barberUsername)
+    {
+        System.out.println("fetching "+barberUsername+" barber bookings.\n");
+        return bookingRepository.findBookingsByBarberUsername(barberUsername);
+    }
+    //                ||                      ||
+    //                ||   DELETE REQUESTS    ||
+    //                ||                      ||
 
 
     //                ||                         ||
@@ -192,6 +198,7 @@ public class BookingController {
     @DeleteMapping("/deleteBooking")    // מחיקת תור קבוע והחזרה לתור פנוי
 
     String deleteBookingByID(@RequestBody String body)
+
     {
         System.out.println("body: "+body.toString());
         JSONObject bookingID = new JSONObject(body);
