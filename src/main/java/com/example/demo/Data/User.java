@@ -1,4 +1,8 @@
 package com.example.demo.Data;
+
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.Id;
+
 import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;

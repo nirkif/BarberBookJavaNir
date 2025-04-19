@@ -24,6 +24,10 @@ public class BookingController {
     private final IOpeningRepository openingRepository;
     private final IUserRepository userRepository;
     private final int bookingPrice = 60;
+
+
+
+
     BookingController(@Autowired IOpeningRepository openingRepository,@Autowired IUserRepository userRepository, @Autowired IBookingRepository bookingRepository) {
         this.openingRepository = openingRepository;
         this.bookingRepository = bookingRepository;
@@ -40,14 +44,14 @@ public class BookingController {
         List<Booking> bookingList = new ArrayList<>();                               // יצירת מערך של תורים תפוסים
         for (Booking booking:bookingRepository.findBookingsByusername(username))     // לולאת FOR בשביל לחפש תורים תפוסים לפי משתמש , מחפש תורים ב-DATABASE לפי משתנה username
         {
-                if(booking.startTime.isAfter(LocalDateTime.now())){
-                    System.out.println("this booking is dated : "+booking.startTime);
-                    bookingList.add(booking);
-                }
-                else{
-                    System.out.println("this booking is NOT dated : "+booking.startTime+"!!");
-                    deleteBookingByID(booking.getId());
-                }
+            if(booking.startTime.isAfter(LocalDateTime.now())){
+                System.out.println("this booking is dated : "+booking.startTime);
+                bookingList.add(booking);
+            }
+            else{
+                System.out.println("this booking is NOT dated : "+booking.startTime+"!!");
+                deleteBookingByID(booking.getId());
+            }
         }
         System.out.println("fetched and deleted outdated bookings for "+username+".\n");
         return bookingList;                                                          // מחזיר את המערך של התורים התפוסים לפי אותו משתמש
@@ -98,10 +102,10 @@ public class BookingController {
         try {
             if (haircutType.equals("MenHairCut")){
                 newBooking = new MenHairCut(jsonObject.getString("barberUsername"),
-                                 jsonObject.getString("username"),
-                                 jsonObject.getString("openingId"),
-                                 opening.openingInfo+"\nType: Men hair cut",opening.startTime,opening.endTime);
-            } 
+                        jsonObject.getString("username"),
+                        jsonObject.getString("openingId"),
+                        opening.openingInfo+"\nType: Men hair cut",opening.startTime,opening.endTime);
+            }
             else if(nextOpening == null){
                 System.out.println("Appointment cannot be after closing hours!");
                 opening.setAvailability(true);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
@@ -117,19 +121,19 @@ public class BookingController {
             else if (haircutType.equals("WomenHairDye")  && nextOpening.isAvailable){
                 nextOpening.setAvailability(false);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
                 newBooking = new WomenHairDye(  jsonObject.getString("barberUsername"),
-                                                jsonObject.getString("username"),
-                                                jsonObject.getString("openingId"),
-                                      opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair dye",
-                                                nextOpening.getId(),opening.startTime,opening.endTime.plusMinutes(30));
+                        jsonObject.getString("username"),
+                        jsonObject.getString("openingId"),
+                        opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair dye",
+                        nextOpening.getId(),opening.startTime,opening.endTime.plusMinutes(30));
                 openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
             }
             else if (haircutType.equals("WomenHairCut")  && nextOpening.isAvailable){
                 nextOpening.setAvailability(false);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
                 newBooking = new WomenHairCut(jsonObject.getString("barberUsername"),
-                                              jsonObject.getString("username"),
-                                              jsonObject.getString("openingId"),
-                                    opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair cut",
-                                              nextOpening.getId(), opening.startTime,opening.endTime.plusMinutes(30));
+                        jsonObject.getString("username"),
+                        jsonObject.getString("openingId"),
+                        opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair cut",
+                        nextOpening.getId(), opening.startTime,opening.endTime.plusMinutes(30));
 
                 openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
             }
@@ -176,18 +180,8 @@ public class BookingController {
             deleteBookingByID(openingId);
             return false;
         }
-        System.out.println("fetched bookings for "+username+".\n");
-        return bookingList;
+        return true;
     }
-    @GetMapping("/getBarberBooking/{barberUsername}")
-    List<Booking> getBarberBooking(@PathVariable String barberUsername)
-    {
-        System.out.println("fetching "+barberUsername+" barber bookings.\n");
-        return bookingRepository.findBookingsByBarberUsername(barberUsername);
-    }
-    //                ||                      ||
-    //                ||   DELETE REQUESTS    ||
-    //                ||                      ||
 
 
     //                ||                         ||
@@ -198,7 +192,6 @@ public class BookingController {
     @DeleteMapping("/deleteBooking")    // מחיקת תור קבוע והחזרה לתור פנוי
 
     String deleteBookingByID(@RequestBody String body)
-
     {
         System.out.println("body: "+body.toString());
         JSONObject bookingID = new JSONObject(body);
@@ -233,15 +226,15 @@ public class BookingController {
     String deleteOutDatedBookings()
     {
         System.out.println("starting deleteOutDatedBookings!");
-     List<Booking> allBookings = bookingRepository.findAll();
-     try{
-         for(Booking booking: allBookings)
-             if(booking.startTime.isBefore(LocalDateTime.now()))
-                 deleteBookingByID(booking.getId());
-         return "outdated booking deleted!";
-     }
-     catch (Exception err){
-         return err.toString();
-     }
+        List<Booking> allBookings = bookingRepository.findAll();
+        try{
+            for(Booking booking: allBookings)
+                if(booking.startTime.isBefore(LocalDateTime.now()))
+                    deleteBookingByID(booking.getId());
+            return "outdated booking deleted!";
+        }
+        catch (Exception err){
+            return err.toString();
+        }
     }
 }
