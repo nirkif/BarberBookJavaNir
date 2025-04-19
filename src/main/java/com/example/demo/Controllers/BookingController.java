@@ -1,30 +1,24 @@
 package com.example.demo.Controllers;
 
 
-import com.example.demo.Data.Barber;
+import com.example.demo.Data.*;
 import com.example.demo.Repository.IBookingRepository;
 import com.example.demo.Repository.IOpeningRepository;
 import com.example.demo.Repository.IUserRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.demo.exceptions.BookingNotFoundException;
-import com.example.demo.exceptions.OpeningNotFoundException;
 
-
-import com.example.demo.Data.Booking;
-import com.example.demo.Data.Opening;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Book;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-@RestController
-@CrossOrigin(origins = "*")
+@RestController                         // נותן גישה להשתמש בבקשות REST כלומר GET,SET,DELETE
+@CrossOrigin(origins = "*")             // מאשר בקשות HTTP לא משנה מאיפה הגיע הבקשה
+
+
 public class BookingController {
     private final IBookingRepository bookingRepository;
     private final IOpeningRepository openingRepository;
@@ -35,87 +29,152 @@ public class BookingController {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
     }
+    //-------------------------------------------------------------------------------------------------------------------------------------//
+    //                ||                         ||
+    //                ||     GET REQUESTS        ||
+    //                ||                         ||
     @CrossOrigin(origins = "*")
-
-
-    //                ||   BOOKING MAPPING    ||
-    //                ||                      ||
-    //                ||                      ||
-    //                ||    POST REQUESTS     ||
-    //                ||                      ||
-
-
-    @PostMapping("/setBookingV2")
-    String newOpeningV2(@RequestBody String body)
+    @GetMapping("/getMyBooking/{username}")                                          // שימוש בפונקציה בעזרת URL
+    List<Booking> getMyBooking(@PathVariable String username)                        // פונקציה לקבלת תור תפוס
     {
-        JSONObject jsonObject = new JSONObject(body);
+        List<Booking> bookingList = new ArrayList<>();                               // יצירת מערך של תורים תפוסים
+        for (Booking booking:bookingRepository.findBookingsByusername(username))     // לולאת FOR בשביל לחפש תורים תפוסים לפי משתמש , מחפש תורים ב-DATABASE לפי משתנה username
+        {
+                if(booking.startTime.isAfter(LocalDateTime.now())){
+                    System.out.println("this booking is dated : "+booking.startTime);
+                    bookingList.add(booking);
+                }
+                else{
+                    System.out.println("this booking is NOT dated : "+booking.startTime+"!!");
+                    deleteBookingByID(booking.getId());
+                }
+        }
+        System.out.println("fetched and deleted outdated bookings for "+username+".\n");
+        return bookingList;                                                          // מחזיר את המערך של התורים התפוסים לפי אותו משתמש
+    }
+    //-------------------------------------------------------------------------------------------------------------------------------------//
+    @GetMapping("/getBarberBooking/{barberUsername}")                               // שימוש בפונקציית בעזרת URL
+    List<Booking> getBarberBooking(@PathVariable String barberUsername)             // פונקציה לקבלת כל התורים התפוסים שיש לספר
+    {
+        System.out.println("fetching "+barberUsername+" barber bookings.\n");
+        return bookingRepository.findBookingsByBarberUsername(barberUsername);      // מחזיר מערך מה-DATABASE של כל התורים התפוסים של הספר
+    }
+    //-------------------------------------------------------------------------------------------------------------------------------------//
+    //                ||                         ||
+    //                ||    POST REQUESTS        ||
+    //                ||                         ||
+    @PostMapping("/setBookingV2")                                   //שימוש בפונקציית בעזרת URL
+    String newOpeningV2(@RequestBody String body)                   //שינוי מתור פנוי לתור תפוס וסיווג תור אם הוא יותר מ1 אם כן בודק גם את התור הבא
+    {
+        JSONObject jsonObject = new JSONObject(body);               //יצירת אובייקט מסוג שמכיל את המשתנים של המחרוזת שהתקבלה
         System.out.println(body);
-        Opening opening;
+        Opening opening;                                            //יצירת משתמש מסוג תור פנוי
         Booking newBooking= null;
+        Opening nextOpening = null;
+        String haircutType = "";
         try {
-            opening = openingRepository.findOpeningByID(jsonObject.getString("openingId"));
-            if(opening.getAvailability() == false)
+            List<Opening> availableOpenings = openingRepository.findAvailableOpeningsByBarberUsername(jsonObject.getString("barberUsername"),true);
+            for(int i = 0 ; i < availableOpenings.size() ; i++){
+                if(availableOpenings.get(i).getId().equals(jsonObject.getString("openingId")) && i+1 <  availableOpenings.size()){
+                    nextOpening = availableOpenings.get(i+1);
+                }
+            }
+            opening = openingRepository.findOpeningByID(jsonObject.getString("openingId")); // חיפוש של תור פנוי לפי ID ע"י שליפת ID ממחרוזת שהתקבלה ויישום במשתמש OPENING
+            haircutType = jsonObject.getString("haircutType");
+            if(!opening.getAvailability())                                                      //בודק אם באובייקט המתשנה מסוג זמין הוא במצב FALSE
             {
-                return "already booked "+opening.getId();
+                return "already booked "+opening.getId();                                       // אם כן מחזיר שהתור כבר תפוס
             }
             else {
-                opening.setAvailability(false);
-                openingRepository.save(opening);
+                opening.setAvailability(false);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
+                openingRepository.save(opening);                                                // שומר את ה-OPENING שהתקבל
             }
         }
-        catch (Exception e){
+
+        catch (Exception e){                                                                    //אם משהו משתבש בתהליך מחזיר את ה-ERROR שהתקבל
             System.out.println(e.toString());
-            return "invalid opening id";
+            return "invalid opening id!\n"+e.toString();
         }
         try {
+            if (haircutType.equals("MenHairCut")){
+                newBooking = new MenHairCut(jsonObject.getString("barberUsername"),
+                                 jsonObject.getString("username"),
+                                 jsonObject.getString("openingId"),
+                                 opening.openingInfo+"\nType: Men hair cut",opening.startTime,opening.endTime);
+            } 
+            else if(nextOpening == null){
+                System.out.println("Appointment cannot be after closing hours!");
+                opening.setAvailability(true);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
+                openingRepository.save(opening);
+                return "Appointment cannot be after closing hours!";
+            }
+            else if (!opening.endTime.equals(nextOpening.startTime)){
+                System.out.println("appointment cannot be : "+opening.startTime+" - "+nextOpening.endTime);
+                opening.setAvailability(true);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
+                openingRepository.save(opening);
+                return "appointment cannot be : "+opening.startTime+" - "+nextOpening.endTime;
+            }
+            else if (haircutType.equals("WomenHairDye")  && nextOpening.isAvailable){
+                nextOpening.setAvailability(false);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
+                newBooking = new WomenHairDye(  jsonObject.getString("barberUsername"),
+                                                jsonObject.getString("username"),
+                                                jsonObject.getString("openingId"),
+                                      opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair dye",
+                                                nextOpening.getId(),opening.startTime,opening.endTime.plusMinutes(30));
+                openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
+            }
+            else if (haircutType.equals("WomenHairCut")  && nextOpening.isAvailable){
+                nextOpening.setAvailability(false);                                                 // אחרת משנה את סוג המשתנה ל-FALSE
+                newBooking = new WomenHairCut(jsonObject.getString("barberUsername"),
+                                              jsonObject.getString("username"),
+                                              jsonObject.getString("openingId"),
+                                    opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair cut",
+                                              nextOpening.getId(), opening.startTime,opening.endTime.plusMinutes(30));
 
-            newBooking = new Booking(jsonObject.getString("barberUsername"), jsonObject.getString("username"), jsonObject.getString("openingId"),bookingPrice,opening.openingInfo);
-            bookingRepository.save(newBooking);
+                openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
+            }
+            else {
+                return "unsupported haircut type";
+            }
+            // יצירת משתמש מסוג תור תפוס מהסטרינג שהתקבל
+            bookingRepository.save(newBooking);// שמירת התור התפוס בDATABASE
             return "new Booking created successfully for "+newBooking.getUsername()+" with "+newBooking.getBarberUsername();
         }
-        catch (Exception err){
-            try {
+        catch (Exception err){                                                                                              // אם משהו משתבש
+            try {                                                                                                           // הפיכת האובייקט במשתנה הזמינות ל-TRUE ושמירת המשתמש
                 opening.setAvailability(true);
                 openingRepository.save(opening);
                 System.out.println("could not set booking and opening returned to previous form");
             }
-            catch (Exception error){
+            catch (Exception error){                                                                                        // אחרת מחזיר ERROR ומציג ID
                 System.out.println(error.toString()+"\nFATAL error: booking not succeed and opening is not available "+opening.getId());
             }
             System.out.println(err.toString());
         }
-        return "succefully booked "+newBooking.getId()+"on opening "+newBooking.getOpeningId();
-
+        return "succefully booked "+newBooking.getId()+"on opening "+newBooking.getOpeningId();                             // מחזיר מחרוזת שכל התהליך התנהל בהתאם
     }
-    @PostMapping("/isDated")
-    boolean isDated(@RequestBody String body)
+    //-------------------------------------------------------------------------------------------------------------------------------------//
+    @PostMapping("/isDated")                     //שימוש בפונקציית בעזרת URL
+    boolean isDated(@RequestBody String body) // בודק אם תור זמין בעזרת משתנה תאריך
     {
-        JSONObject jsonObject = new JSONObject(body);
+        JSONObject jsonObject = new JSONObject(body);// יצירת אובייקט עם המחרוזת שהתקבלה
         System.out.println("startTime: "+openingRepository.findOpeningByID(jsonObject.getString("openingId")));
-        if(openingRepository.findOpeningByID(jsonObject.getString("openingId")).startTime.isBefore(LocalDateTime.now()))
+        if(openingRepository.findOpeningByID(jsonObject.getString("openingId")).startTime.isBefore(LocalDateTime.now()))// חיפוש תור פנוי לפי ID ובנוסף בדיקה אם תור לא רלוונטי מבחינת תאריך
         {
             System.out.println("opening is outdated");
             System.out.println(openingRepository.findOpeningByID(jsonObject.getString("openingId")).startTime+" < "+LocalDateTime.now());
-            return false;
+            return false;// אם לא רלוונטי מבחינת תאריך מחזיר FALSE
         }
         System.out.println("opening is dated");
-        return true; // only if true will show the booking
+        return true; // אם התאריך תקין מחזיר TRUE
     }
-
-
-    //                ||                      ||
-    //                ||    GET REQUESTS      ||
-    //                ||                      ||
-
-
-    @GetMapping("/getMyBooking/{username}")
-    List<Booking> getMyBooking(@PathVariable String username)
+    //-------------------------------------------------------------------------------------------------------------------------------------// CHECK WITH YUVAAAAAAAAAAAAAAAAAAAAAAAAL
+    boolean isDatedV2(String openingId)// בדיקה אם תור עדיין זמין בעזרת ID של תור פנוי
     {
-        List<Booking> bookingList = new ArrayList<>();
-        for (Booking booking:bookingRepository.findBookingsByusername(username))
+        if(openingRepository.findOpeningByID(openingId).startTime.isBefore(LocalDateTime.now()))//מוצא את התור לפי ID ולאחר מכן בודק אם תחילת התור הוא לפני התאריך של היום
         {
-            if(isDatedV2(booking.getOpeningId()))
-                bookingList.add(booking);
+            deleteBookingByID(openingId);
+            return false;
         }
         System.out.println("fetched bookings for "+username+".\n");
         return bookingList;
@@ -131,47 +190,58 @@ public class BookingController {
     //                ||                      ||
 
 
-    @DeleteMapping("/deleteBooking")
+    //                ||                         ||
+    //                ||   DELETE REQUESTS       ||
+    //                ||                         ||
 
-    String deleteUserByID(@RequestBody String body)
+
+    @DeleteMapping("/deleteBooking")    // מחיקת תור קבוע והחזרה לתור פנוי
+
+    String deleteBookingByID(@RequestBody String body)
+
     {
-        JSONObject jsonObject = new JSONObject(body);
-        String bookingId = jsonObject.getString("bookingId");
-        String openingId = bookingRepository.findBookingByID(bookingId).getOpeningId();
-        Opening opening = openingRepository.findOpeningByID(openingId);
+        System.out.println("body: "+body.toString());
+        JSONObject bookingID = new JSONObject(body);
+        Booking bookingToDelete = bookingRepository.findBookingByID(bookingID.getString("bookingId"));
+        Opening opening = openingRepository.findOpeningByID(bookingToDelete.getOpeningId());
+        System.out.println("opening from repository:"+bookingToDelete.getOpeningId());
+        System.out.println(bookingToDelete.get2ndOpeningID() != null+" if status");
+        if(bookingToDelete.get2ndOpeningID() != null){
+            System.out.println("second opening id: "+bookingToDelete.get2ndOpeningID());
+            Opening secondOpening = openingRepository.findOpeningByID(bookingToDelete.get2ndOpeningID());
+            secondOpening.setAvailability(true);
+            openingRepository.save(secondOpening);
+            System.out.println("secondOpening status: "+secondOpening.getAvailability());
+        }
         opening.setAvailability(true);
-        openingRepository.save(opening);
-        System.out.println("opening availabily returned to true.");
         try
         {
-            bookingRepository.deleteById(bookingId);
+            bookingRepository.deleteById(bookingToDelete.getId());
+            openingRepository.save(opening);
+            System.out.println("Opening status: "+opening.getAvailability());
             System.out.println("booking deleted successfully.");
         }
         catch (Exception err)
         {
-            opening.setAvailability(false);
-            openingRepository.save(opening);
             System.out.printf(err.toString());
             return err.toString();
         }
-        System.out.printf("Booking "+bookingId+" has been deleted.");
-        return "Booking "+bookingId+" has been deleted.";
+        System.out.printf("Booking "+bookingToDelete.getId()+" has been deleted.");
+        return "Booking "+bookingToDelete.getId()+" has been deleted.";
     }
-
-    //                ||                      ||
-    //                ||      AUXILIARY       ||
-    //                ||                      ||
-    boolean isDatedV2(String openingId)
+    @DeleteMapping("/deleteOutDatedBookings/")
+    String deleteOutDatedBookings()
     {
-        if(openingRepository.findOpeningByID(openingId).startTime.isBefore(LocalDateTime.now()))
-        {
-            return false;
-        }
-        return true;
+        System.out.println("starting deleteOutDatedBookings!");
+     List<Booking> allBookings = bookingRepository.findAll();
+     try{
+         for(Booking booking: allBookings)
+             if(booking.startTime.isBefore(LocalDateTime.now()))
+                 deleteBookingByID(booking.getId());
+         return "outdated booking deleted!";
+     }
+     catch (Exception err){
+         return err.toString();
+     }
     }
-
-
-
-
-
 }

@@ -25,31 +25,11 @@ public class OpeningController{
         this.openingRepository = iOpeningRepository;
         this.userRepository = userRepository;
     }
+    //                ||                         ||
+    //                ||     POST REQUESTS       ||
+    //                ||                         ||
 
-    //                ||   OPENING MAPPING    ||
-    //                ||                      ||
-    //                ||                      ||
-    //                ||    POST REQUESTS     ||
-    //                ||                      ||
-
-
-    @PostMapping("/addOpening")
-    void newOpening(@RequestBody String body)
-    {
-        JSONObject jsonObject = new JSONObject(body);
-        Opening newOpening;
-        System.out.println("adding opening");
-        Barber barber = (Barber)userRepository.findUserByUserName(jsonObject.getString("userName"));
-        try {
-            newOpening = new Opening(barber.getUsername(),barber.getName(),jsonObject.getString("startTime"));
-            openingRepository.save(newOpening);
-            System.out.println("new opening created successfully with barber "+newOpening.getBarberName());
-        }
-        catch (Exception err){
-            System.out.println(err.toString());
-        }
-    }
-    @PostMapping("/addOpeningsV2")
+    @PostMapping("/addOpeningsV2") // יצירת אובייקט מסוג תור פנוי
     void newOpeningsV2(@RequestBody String body)
     {
         JSONObject jsonObject = new JSONObject(body);
@@ -84,94 +64,64 @@ public class OpeningController{
             System.out.println("error creating day: "+err);
         }
     }
+    //________________________________________________________________________________________________________________//
 
 
 
 
-
-    @PostMapping("/addOpenings")
-    void newOpenings(@RequestBody String body)
-    {
-        JSONObject jsonObject = new JSONObject(body);
-        String username = jsonObject.getString("userName");
-        String startTime =jsonObject.getString("startTime");
-        String endTime = jsonObject.getString("endTime");
-        Barber barber = (Barber)userRepository.findUserByUserName(jsonObject.getString("userName"));
-        System.out.println("creating day version 1.");
-        try{
-            int startTimeInt = Integer.parseInt(startTime); // by hours
-            int endTimeInt = Integer.parseInt(endTime); // by hours 9 - 17
-            if((startTimeInt < 23 && startTimeInt > -1 ) && (endTimeInt < 23 && endTimeInt > -1 && endTimeInt > startTimeInt))
-            {
-                int minutes = 0;
-                while(startTimeInt < endTimeInt)
-                {
-
-                    Opening newOpening = new Opening(barber.getUsername(), barber.getName(), startTime ,String.valueOf(minutes));
-                    openingRepository.save(newOpening);
-                    minutes = (minutes+30)%60;
-                    if(minutes == 0)
-                        startTimeInt+=1;
-                    startTime = String.valueOf(startTimeInt);
-                }
-            }
-            System.out.println("day created successfully for "+barber.getUsername());
-
-
-        }catch (Exception err) {
-            System.out.println("error creating day: "+err);
-        }
-    }
-
-
-    //                ||                      ||
-    //                ||    GET REQUESTS      ||
-    //                ||                      ||
-
-
-    @GetMapping("/allOpenings/")
+    //                ||                         ||
+    //                ||     GET REQUESTS        ||
+    //                ||                         ||
+    @GetMapping("/allOpenings/") // קבלת כל התורים
     List<Opening> allOpenings()
     {
         System.out.println("fetching all openings.");
         return openingRepository.findAll();
     }
-
-    @GetMapping("/getOpenings/{username}")
+    //________________________________________________________________________________________________________________//
+    @GetMapping("/getOpenings/{username}")              // קבלת תור לפי שם
     List<Opening> getOpeningsByUserName(@PathVariable String username)
     {
         System.out.printf("fetching openings for :"+username+".\n");
         return openingRepository.findOpeningsByBarberUsername(username);
     }
-    @GetMapping("/getAvailableOpenings/{username}")
+    //________________________________________________________________________________________________________________//
+    @GetMapping("/getAvailableOpenings/{username}")         // קבלת זמינות תור
     List<Opening> getAvailableOpeningsByUserName(@PathVariable String username) // to add
     {
         System.out.println("fetching available openings for :"+username+".\n");
         return openingRepository.findAvailableOpeningsByBarberUsername(username,true);
     }
-    @GetMapping("/findAllAvailableOpenings/")
+    //________________________________________________________________________________________________________________//
+    @GetMapping("/findAllAvailableOpenings/")       // קבלת כל התורים הזמינים
     List<Opening> allAvailableOpenings()
     {
         System.out.println("fetching all available openings.\n");
         return openingRepository.findAllAvailableOpenings(true);
     }
-    @DeleteMapping("/deleteOutDatedOpenings/")
+
+
+    //                ||                         ||
+    //                ||   DELETE REQUESTS       ||
+    //                ||                         ||
+    @DeleteMapping("/deleteOutDatedOpenings/")      // מחיקת תורים לא זמינים
     String deleteOutDatedOpenings()
     {
-        List<Opening> openings = allAvailableOpenings();
+        List<Opening> openings = openingRepository.findAll();
         try{
             System.out.println("todays date: "+ LocalDateTime.now());
+            List<Opening> outDatedOpenings = new ArrayList<>();
             for (Opening opening: openings)
             {
-                System.out.println("opening date: "+opening.startTime);
-                System.out.println("is statement true?"+opening.startTime.isBefore(LocalDateTime.now()));
                 if(opening.startTime.isBefore(LocalDateTime.now()))
                 {
                     System.out.println("removing opening that scheduled to"+opening.startTime);
-                    openingRepository.deleteById(opening.getId());
+                    outDatedOpenings.add(opening);
                 }
             }
+            openingRepository.deleteAll(outDatedOpenings);
             System.out.println("removed outdated openings.");
-            return "openings removed!";
+            return "removed outdated openings!";
         }catch (Exception err) {
             System.out.println("Error: "+err);
             return err.toString();
@@ -179,16 +129,10 @@ public class OpeningController{
 
 
     }
+    //________________________________________________________________________________________________________________//
+    @DeleteMapping("/deleteOpening")        // מחיקת תור
+    String deleteOpeningByID(@RequestBody String body)
 
-
-    //               ||                       ||
-    //               ||   DELETE REQUESTS     ||
-    //               ||                       ||
-
-
-    @DeleteMapping("/deleteOpening")
-
-    String deleteUserByID(@RequestBody String body)
     {
 
         JSONObject jsonObject = new JSONObject(body);

@@ -5,19 +5,26 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Document("bookings")
-public class Booking {
+public class Booking { // אובייקט מסוג תור לא פנוי
 
     @Id
-    private String id;
-    private String username;
-    private String barberUsername;
-    private String openingId;
-    public String openingInfo;
+    protected String id;
 
+    protected String username;
+    protected String barberUsername;
+    protected String openingId;
+    protected  String opening2Id = null;
+    public String openingInfo;
+    protected int price;
+    protected String phoneNumber;
+
+    public LocalDateTime startTime;
+    public LocalDateTime endTime;
     public String getId() {
         return id;
     }
@@ -33,20 +40,23 @@ public class Booking {
     public String getOpeningId() {
         return openingId;
     }
+    public String get2ndOpeningID(){return opening2Id;}
 
     public int getPrice() {
         return price;
     }
 
-    private  int price;
- }
-    public Booking(String barberUsername, String username,String openingId,int price,String openingInfo)
+    public Booking(String barberUsername, String username,String openingId,int price,String openingInfo,LocalDateTime startTime,LocalDateTime endTime) // בנאי
+
     {
         this.username = username;
         this.barberUsername = barberUsername;
         this.openingId = openingId;
         this.price = price;
         this.openingInfo = openingInfo;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        System.out.println("startTime for new booking: "+this.startTime);
     }
 
 

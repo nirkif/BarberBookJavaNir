@@ -11,7 +11,8 @@ public class Password {
     private String username;
     private String encryptedPassword;
 
-    private int offSet= LocalDateTime.now().getSecond();
+    private int offSet = LocalDateTime.now().getSecond();
+
     public Password(String username, String encryptedPassword,int offSet)
     {
         this.username = username;
@@ -21,7 +22,6 @@ public class Password {
     public String getUsername() {return this.username;}
     public String getEncryptedPassword() {return this.encryptedPassword;}
     public int getOffSet(){return this.offSet;}
-
 
 
 }
