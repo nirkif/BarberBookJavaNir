@@ -132,7 +132,6 @@ public class OpeningController{
     //________________________________________________________________________________________________________________//
     @DeleteMapping("/deleteOpening")        // מחיקת תור
     String deleteOpeningByID(@RequestBody String body)
-
     {
 
         JSONObject jsonObject = new JSONObject(body);
