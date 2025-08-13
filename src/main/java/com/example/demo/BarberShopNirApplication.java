@@ -1,7 +1,7 @@
 package com.example.demo;
 
 
-import com.example.demo.Repository.IUserRepository;
+//import com.example.demo.Repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories
 public class BarberShopNirApplication{
 	@Autowired
-	IUserRepository userRepository;
+//	IUserRepository userRepository;
 	public static void main(String[] args) {
 		SpringApplication.run(BarberShopNirApplication.class, args);
 	}

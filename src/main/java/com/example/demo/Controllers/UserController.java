@@ -1,11 +1,8 @@
 package com.example.demo.Controllers;
 
-import com.example.demo.Data.Barber;
-import com.example.demo.Data.Password;
-import com.example.demo.Data.encryption;
+import com.example.demo.Data.*;
 import com.example.demo.Repository.IPasswordRepository;
 import com.example.demo.exceptions.UserException;
-import com.example.demo.Data.User;
 import com.example.demo.Repository.IUserRepository;
 
 import org.json.JSONObject;
@@ -62,7 +59,7 @@ public class UserController{
         catch (Exception err)
         {
             System.out.println(err.toString());
-            throw new UserException("addUser function error, something in the process addUser did not succeed");
+            throw new UserException("addUser function error, something in the process addUser did not work");
         }
     }
 
@@ -91,6 +88,36 @@ public class UserController{
         repository.save(user);
         System.out.println("user "+user.getUsername()+" profile picture updated.");
     }
+
+    @PostMapping("/promoteUserToManagerId")                    // הוספת ספר מID של משתמש
+    Manager userToManager(@RequestBody String body)
+    {
+        JSONObject object = new JSONObject(body);
+        String id = object.getString("id");
+        User u = repository.findUserById(id);
+        System.out.println("converting user to Manager by id.");
+        try{
+            if(!repository.findUserById(id).getClass().equals(com.example.demo.Data.Manager.class))
+            {
+                Manager newManager = new Manager(u);
+                deleteUserByID(id);
+                return repository.save(newManager);
+            }
+            else{
+                System.out.println("cannot create new Manager from a Manager");
+                System.out.println(repository.findUserById(object.getString("id")).getClass().equals(com.example.demo.Data.User.class));
+            }
+        }
+        catch (Exception error)
+        {
+            System.out.println(error);
+        }
+        return null;
+    }
+
+
+
+
 
     //                ||                      ||
     //                ||    GET REQUESTS      ||
@@ -226,6 +253,39 @@ public class UserController{
         return null;
     }
 
+    @PostMapping("/addUserFromBarberId")                    // הוספת ספר מID של משתמש
+    User BarberToUser(@RequestBody String body)
+    {
+        JSONObject object = new JSONObject(body);
+        if(!object.has("id")){
+            System.out.println("requested id is null");
+            System.out.println("Request body: " + body);
+            return null;
+        }
+        String id = object.getString("id");
+        User u = repository.findUserById(id);
+        User newUser = new User(u.getUsername(),u.getName(),u.getPhoneNum());
+        System.out.println("found User:" + u.toString());
+        try{
+            if(!repository.findUserById(id).getClass().equals(com.example.demo.Data.User.class))
+            {
+                deleteUserByID(id);
+                repository.save(newUser);
+                System.out.println(newUser.toString());
+                return newUser;
+            }
+            else{
+                System.out.println("cannot create new User from a barber");
+                System.out.println(repository.findUserById(object.getString("id")).getClass().equals(com.example.demo.Data.User.class));
+            }
+        }
+        catch (Exception error)
+        {
+            System.out.println(error);
+        }
+        return null;
+    }
+
 
     //                ||                      ||
     //                ||    GET  REQUESTS     ||
@@ -252,5 +312,6 @@ public class UserController{
         System.out.println("barbers fetched successfully");
         return barbers;
     }
+
 
 }

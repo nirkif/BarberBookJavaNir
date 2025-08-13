@@ -18,6 +18,7 @@ public interface IBookingRepository extends MongoRepository<Booking,String> {
     @Query("{username:'?0'}")
     List<Booking> findBookingsByusername(String username);
 
+    List<Booking> findAll();
     @Query("{openingId:'?0'}")
     Booking findBookingByOpeningId(String openingId);
     @Query("{opening2Id:'?0'}")

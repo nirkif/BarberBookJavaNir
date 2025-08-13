@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("users")
 public class User {
     @Id
-//    @GeneratedValue
     private String id;
     @Indexed(unique = true)
     private String username;

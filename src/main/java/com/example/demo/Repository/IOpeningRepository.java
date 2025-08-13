@@ -13,7 +13,7 @@ public interface IOpeningRepository extends MongoRepository<Opening, String>{
     @Query(value="{category:'?0'}", fields="{'name' : 1, 'quantity' : 1}")
     Opening findAll(String category);
 
-    @Query("{id:'?0'}")
+    @Query("{_id:'?0'}")
     Opening findOpeningByID(String id);
 
     //query all openings in range

@@ -1,5 +1,7 @@
 package com.example.demo.Data;
 import com.example.demo.Utility.GetTimeStamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,7 +13,8 @@ import java.util.List;
 
 //@Entity
 @Document("bookings")
-public class Booking { // אובייקט מסוג תור לא פנוי
+public class Booking {
+    private static final Logger log = LoggerFactory.getLogger(Booking.class); // אובייקט מסוג תור לא פנוי
 
     //    @GeneratedValue
     @Id
@@ -22,9 +25,9 @@ public class Booking { // אובייקט מסוג תור לא פנוי
     protected String openingId;
     protected String opening2Id = null;
     public String openingInfo;
-    protected int price;
-    protected String phoneNumber;
 
+    protected String phoneNumber;
+    int price;
     public LocalDateTime startTime;
     public LocalDateTime endTime;
 
@@ -51,13 +54,13 @@ public class Booking { // אובייקט מסוג תור לא פנוי
     public int getPrice() {
         return price;
     }
+    public void setPrice(int price){this.price = price;}
 
     public Booking(String barberUsername, String username, String openingId, int price, String openingInfo, LocalDateTime startTime, LocalDateTime endTime) // בנאי
     {
         this.username = username;
         this.barberUsername = barberUsername;
         this.openingId = openingId;
-        this.price = price;
         this.openingInfo = openingInfo;
         this.startTime = startTime;
         this.endTime = endTime;

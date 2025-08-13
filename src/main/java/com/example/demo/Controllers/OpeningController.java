@@ -1,7 +1,9 @@
 package com.example.demo.Controllers;
 
 import com.example.demo.Data.Barber;
+import com.example.demo.Data.Manager;
 import com.example.demo.Data.Opening;
+import com.example.demo.Data.User;
 import com.example.demo.Repository.IOpeningRepository;
 import com.example.demo.Repository.IUserRepository;
 import org.apache.tomcat.util.json.JSONParser;
@@ -38,31 +40,63 @@ public class OpeningController{
         String endTime = jsonObject.getString("endTime");
         String month = jsonObject.getString("month");
         String dayOfMonth = jsonObject.getString("dayOfMonth");
-        Barber barber = (Barber)userRepository.findUserByUserName(jsonObject.getString("userName"));
-        System.out.println("creating day version 2.");
-        try{
-            int startTimeInt = Integer.parseInt(startTime); // by hours
-            int endTimeInt = Integer.parseInt(endTime); // by hours 9 - 17
-            if((startTimeInt < 23 && startTimeInt > -1 ) && (endTimeInt < 23 && endTimeInt > -1 && endTimeInt > startTimeInt))
-            {
-                int minutes = 0;
-                while(startTimeInt < endTimeInt)
+        System.out.println(userRepository.findUserByUserName(jsonObject.getString("userName")));
+        System.out.println(userRepository.findUserByUserName(jsonObject.getString("userName")).getClassType());
+        User user = userRepository.findUserByUserName(jsonObject.getString("userName"));
+        if(user != null && user.getClass().equals(Barber.class))
+        {
+            Barber barber = (Barber)userRepository.findUserByUserName(jsonObject.getString("userName"));
+            System.out.println("creating day version 2.");
+            try{
+                int startTimeInt = Integer.parseInt(startTime); // by hours
+                int endTimeInt = Integer.parseInt(endTime); // by hours 9 - 17
+                if((startTimeInt < 23 && startTimeInt > -1 ) && (endTimeInt < 23 && endTimeInt > -1 && endTimeInt > startTimeInt))
                 {
+                    int minutes = 0;
+                    while(startTimeInt < endTimeInt)
+                    {
 
-                    Opening newOpening = new Opening(barber.getUsername(), barber.getName(), startTime ,String.valueOf(minutes),dayOfMonth,month);
-                    openingRepository.save(newOpening);
-                    minutes = (minutes+30)%60;
-                    if(minutes == 0)
-                        startTimeInt+=1;
-                    startTime = String.valueOf(startTimeInt);
+                        Opening newOpening = new Opening(barber.getUsername(), barber.getName(), startTime ,String.valueOf(minutes),dayOfMonth,month);
+                        openingRepository.save(newOpening);
+                        minutes = (minutes+30)%60;
+                        if(minutes == 0)
+                            startTimeInt+=1;
+                        startTime = String.valueOf(startTimeInt);
+                    }
                 }
+                System.out.println("day created successfully for "+barber.getUsername()+" from 9 - 17");
+
+
+            }catch (Exception err) {
+                System.out.println("error creating day: "+err);
             }
-            System.out.println("day created successfully for "+barber.getUsername()+" from 9 - 17");
 
-
-        }catch (Exception err) {
-            System.out.println("error creating day: "+err);
         }
+        else if (user != null && user.getClass().equals(Manager.class))
+        {
+            Manager manager = (Manager)userRepository.findUserByUserName(jsonObject.getString("userName"));
+            try{
+                int startTimeInt = Integer.parseInt(startTime); // by hours
+                int endTimeInt = Integer.parseInt(endTime); // by hours 9 - 17
+                if((startTimeInt < 23 && startTimeInt > -1 ) && (endTimeInt < 23 && endTimeInt > -1 && endTimeInt > startTimeInt))
+                {
+                    int minutes = 0;
+                    while(startTimeInt < endTimeInt)
+                    {
+
+                        Opening newOpening = new Opening(manager.getUsername(), manager.getName(), startTime ,String.valueOf(minutes),dayOfMonth,month);
+                        openingRepository.save(newOpening);
+                        minutes = (minutes+30)%60;
+                        if(minutes == 0)
+                            startTimeInt+=1;
+                        startTime = String.valueOf(startTimeInt);
+                    }
+                }
+        } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+    }
     }
     //________________________________________________________________________________________________________________//
 
