@@ -57,7 +57,6 @@ public class BookingController {
             else{
                 System.out.println("this booking is NOT dated : "+booking.startTime+"!!");
                 System.out.println("here are the following to count as profit: "+booking.openingInfo);
-                //deleteBookingByID(booking.getId());
             }
         }
         System.out.println("fetched and deleted outdated bookings for "+username+".\n");
@@ -241,44 +240,37 @@ public class BookingController {
             openingRepository.save(secondOpening);
             System.out.println("secondOpening status: "+secondOpening.getAvailability());
         }
-        opening.setAvailability(true);
-        try
-        {
-            bookingRepository.deleteById(bookingToDelete.getId());
-            openingRepository.save(opening);
-            System.out.println("Opening status: "+opening.getAvailability());
-            System.out.println("booking deleted successfully.");
+        if(opening != null) {
+            opening.setAvailability(true);
+            try {
+                bookingRepository.deleteById(bookingToDelete.getId());
+                openingRepository.save(opening);
+                System.out.println("Opening status: " + opening.getAvailability());
+                System.out.println("booking deleted successfully.");
+            } catch (Exception err) {
+                System.out.printf(err.toString());
+                return err.toString();
+            }
         }
-        catch (Exception err)
-        {
-            System.out.printf(err.toString());
-            return err.toString();
+        else{
+            try {
+                bookingRepository.deleteById(bookingToDelete.getId());
+                System.out.println("booking deleted successfully.");
+            } catch (Exception err) {
+                System.out.printf(err.toString());
+                return err.toString();
+            }
         }
         System.out.printf("Booking "+bookingToDelete.getId()+" has been deleted.");
         return "Booking "+bookingToDelete.getId()+" has been deleted.";
     }
-//    @DeleteMapping("/deleteOutDatedBookings/")
-//    String deleteOutDatedBookings()
-//    {
-//        System.out.println("starting deleteOutDatedBookings!");
-//        List<Booking> allBookings = bookingRepository.findAll();
-//        try{
-//            for(Booking booking: allBookings)
-//                if(booking.startTime.isBefore(LocalDateTime.now()))
-//                    deleteBookingByID(booking.getId());
-//            return "outdated booking deleted!";
-//        }
-//        catch (Exception err){
-//            return err.toString();
-//        }
-//    }
     @GetMapping("/getProfit/")
     int getProfit(){
         List<Booking> allBookings = bookingRepository.findAll();
         totalSum=0;
         for(Booking booking: allBookings)
         {
-            if(booking.startTime.isBefore(LocalDateTime.now()));
+            if(booking.startTime.isBefore(LocalDateTime.now()))
             {
                 totalSum+=booking.getPrice();
             }
@@ -302,19 +294,7 @@ public class BookingController {
         return totalSum;
     }
 
-    @GetMapping("/getDailyProfit/")
-    int getDailyProfit(){
-        List<Booking> allBookings = bookingRepository.findAll();
-        totalSum=0;
-        for(Booking booking: allBookings)
-        {
-            LocalDateTime yesterDay = LocalDateTime.now().minusDays(1);
-            if(booking.startTime.isAfter(yesterDay) && booking.startTime.isBefore(LocalDateTime.now()))
-                totalSum+=booking.getPrice();
-        }
-        System.out.println("current Daily sum: "+totalSum);
-        return totalSum;
-    }
+
 
 //    @GetMapping("/getOutdatedBookings")
 //    Booking getOutDatedBookings(){

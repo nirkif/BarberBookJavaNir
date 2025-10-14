@@ -17,7 +17,7 @@ public class ItemController {
     ItemController(@Autowired IItemRepository itemRepository) {this.itemRepository = itemRepository;}
 
         @PostMapping("/newItem")
-        String newItem(@RequestBody String body)
+        List<Item> newItem(@RequestBody String body)
         {
             try{
                 JSONObject jsonObject = new JSONObject(body);
@@ -26,12 +26,13 @@ public class ItemController {
                         jsonObject.getInt("price"),
                         jsonObject.getInt("quantity"));
                 itemRepository.save(item);
-                return item.toString();
+
+                return itemRepository.findAll();
             }
             catch (Exception err){
-                return err.toString();
+                System.out.println(err.toString());
+                return null;
             }
-
         }
         @GetMapping("getItemByID/{id}")
         Item getItemByID(@PathVariable String id)
