@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 @RestController                         // נותן גישה להשתמש בבקשות REST כלומר GET,SET,DELETE
 @CrossOrigin(origins = "*")             // מאשר בקשות HTTP לא משנה מאיפה הגיע הבקשה
@@ -67,14 +68,16 @@ public class BookingController {
     List<Booking> getBarberBooking(@PathVariable String barberUsername)             // פונקציה לקבלת כל התורים התפוסים שיש לספר
     {
         System.out.println("fetching "+barberUsername+" barber bookings.\n");
-        return bookingRepository.findBookingsByBarberUsername(barberUsername);      // מחזיר מערך מה-DATABASE של כל התורים התפוסים של הספר
+        List<Booking> bookings = bookingRepository.findBookingsByBarberUsername(barberUsername);      // מחזיר מערך מה-DATABASE של כל התורים התפוסים של הספר
+        bookings.sort(Comparator.comparing(Booking::getStartTime));
+        return bookings;
     }
-
+    //-------------------------------------------------------------------------------------------------------------------------------------//
     @GetMapping("/getAllBookings")
     List<Booking> getAllBookings()
     {
         List<Booking> allBookings = bookingRepository.findAll();
-        System.out.println("fetching all bookings");
+        allBookings.sort(Comparator.comparing(Booking::getStartTime));
         return allBookings;
     }
     //-------------------------------------------------------------------------------------------------------------------------------------//
@@ -92,6 +95,7 @@ public class BookingController {
         Booking newBooking= null;
         Opening nextOpening = null;
         String haircutType = "";
+        String phoneNumber;
         int price;
         try {
             List<Opening> availableOpenings = openingRepository.findAvailableOpeningsByBarberUsername(jsonObject.getString("barberUsername"),true);
@@ -122,7 +126,8 @@ public class BookingController {
                 newBooking = new MenHairCut(jsonObject.getString("barberUsername"),
                         jsonObject.getString("username"),
                         jsonObject.getString("openingId"),
-                        opening.openingInfo+"\nType: Men hair cut",opening.startTime,opening.endTime,pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getmenHairCutPrice());
+                        opening.openingInfo+"\nType: Men hair cut",opening.startTime,opening.endTime,pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getmenHairCutPrice(),
+                        userRepository.findUserByUserName(jsonObject.getString("username")).getPhoneNum());
             }
             else if(nextOpening == null){
                 System.out.println("Appointment cannot be after closing hours!");
@@ -142,7 +147,8 @@ public class BookingController {
                         jsonObject.getString("username"),
                         jsonObject.getString("openingId"),
                         opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair dye",
-                        nextOpening.getId(),opening.startTime,opening.endTime.plusMinutes(30),pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getwomanHairDyePrice());
+                        nextOpening.getId(),opening.startTime,opening.endTime.plusMinutes(30),pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getwomanHairDyePrice(),
+                        userRepository.findUserByUserName(jsonObject.getString("username")).getPhoneNum());
                 openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
             }
             else if (haircutType.equals("WomenHairCut")  && nextOpening.isAvailable){
@@ -151,7 +157,8 @@ public class BookingController {
                         jsonObject.getString("username"),
                         jsonObject.getString("openingId"),
                         opening.openingInfo.substring(0,17)+nextOpening.openingInfo.substring(17)+"\nType: Women hair cut",
-                        nextOpening.getId(), opening.startTime,opening.endTime.plusMinutes(30),pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getwomanHairCutPrice());
+                        nextOpening.getId(), opening.startTime,opening.endTime.plusMinutes(30),pricesRepository.findPricesByID("688ba77d48d00c108a659d8a").getwomanHairCutPrice(),
+                        userRepository.findUserByUserName(jsonObject.getString("username")).getPhoneNum());
 
                 openingRepository.save(nextOpening);                                                // שומר את ה-OPENING שהתקבל
             }

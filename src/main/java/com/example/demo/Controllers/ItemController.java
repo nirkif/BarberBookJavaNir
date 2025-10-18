@@ -21,12 +21,25 @@ public class ItemController {
         {
             try{
                 JSONObject jsonObject = new JSONObject(body);
-                Item item = new Item(jsonObject.getString("name"),
-                        jsonObject.getString("supplier"),
-                        jsonObject.getInt("price"),
-                        jsonObject.getInt("quantity"));
-                itemRepository.save(item);
+                int newPrice;
+                int newQuantity;
+                if(jsonObject.getInt("price")<0)
+                {newPrice = jsonObject.getInt("price")*-1;}
+                else if(jsonObject.getInt("price")>=0)
+                {newPrice = jsonObject.getInt("price");}
+                else{return null;}
 
+                if(jsonObject.getInt("quantity")<0)
+                {newQuantity = jsonObject.getInt("quantity")*-1;}
+                else if(jsonObject.getInt("quantity")>=0)
+                {newQuantity = jsonObject.getInt("quantity");}
+                else{return null;}
+
+                    Item item = new Item(jsonObject.getString("name"),
+                            jsonObject.getString("supplier"),
+                            newPrice,
+                            newQuantity);
+                    itemRepository.save(item);
                 return itemRepository.findAll();
             }
             catch (Exception err){
@@ -53,7 +66,14 @@ public class ItemController {
             try{
                 JSONObject jsonObject = new JSONObject(body);
                 Item item = itemRepository.findItemByID(jsonObject.getString("id"));
-                item.setQuantity(jsonObject.getInt("quantity"));
+                int newQuantity;
+                if(jsonObject.getInt("quantity")<0)
+                    newQuantity=jsonObject.getInt("quantity")*-1;
+                else if(jsonObject.getInt("quantity")>=0)
+                    newQuantity=jsonObject.getInt("quantity");
+                else
+                    return null;
+                item.setQuantity(newQuantity);
                 itemRepository.save(item);
                 System.out.println("item updated succesfully: "+item.getName());
                 return itemRepository.findAll();

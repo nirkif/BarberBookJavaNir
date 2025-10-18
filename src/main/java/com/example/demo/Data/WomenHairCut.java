@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDateTime;
 
 public class WomenHairCut extends Booking {
-    public WomenHairCut(String barberUsername, String username, String openingId, String openingInfo, String opening2Id, LocalDateTime startTime,LocalDateTime endTime,int price)
+    public WomenHairCut(String barberUsername, String username, String openingId, String openingInfo, String opening2Id, LocalDateTime startTime,LocalDateTime endTime,int price,String phoneNumber)
     {
         super.username = username;
         super.barberUsername = barberUsername;
@@ -19,6 +19,7 @@ public class WomenHairCut extends Booking {
         super.startTime = startTime;
         super.endTime = endTime;
         super.price = price;
+        super.phoneNumber = phoneNumber;
     }
 }
 

@@ -25,7 +25,14 @@ public class PriceController {
             Prices mainPriceObject = pricesRepository.findPricesByID("688ba77d48d00c108a659d8a");
             String oldPricesToString = mainPriceObject.toString();
             System.out.println("Old Prices: "+oldPricesToString);
-            mainPriceObject.setwomanHairCutPrice(updatedPrices.getInt("womanHairCutPrice"));
+            int newPrice = updatedPrices.getInt("womanHairCutPrice");
+            if(newPrice<0)
+            {
+                mainPriceObject.setwomanHairCutPrice(newPrice*-1);
+            }
+            else{
+                mainPriceObject.setwomanHairCutPrice(newPrice);
+            }
             mainPriceObject.setLastUpdated(LocalDateTime.now());
             if(oldPricesToString.equals(mainPriceObject.toString()))
                 changeWomanHairCutPrice(mainPriceObject.toString());
@@ -40,7 +47,14 @@ public class PriceController {
         try{
             JSONObject updatedPrices = new JSONObject(body);
             Prices mainPriceObject = pricesRepository.findPricesByID("688ba77d48d00c108a659d8a");
-            mainPriceObject.setWomanHairDyePrice(updatedPrices.getInt("womanHairDyePrice"));
+            int newPrice = updatedPrices.getInt("womanHairDyePrice");
+            if(newPrice<0)
+            {
+                mainPriceObject.setWomanHairDyePrice(newPrice*-1);
+            }
+            else {
+                mainPriceObject.setWomanHairDyePrice(newPrice);
+            }
             mainPriceObject.setLastUpdated(LocalDateTime.now());
             pricesRepository.save(mainPriceObject);
         }
@@ -53,7 +67,14 @@ public class PriceController {
             JSONObject updatedPrices = new JSONObject(body);
             Prices mainPriceObject =  pricesRepository.findPricesByID("688ba77d48d00c108a659d8a");
             System.out.println("Old Prices: "+mainPriceObject.toString());
-            mainPriceObject.setmenHairCutPrice(updatedPrices.getInt("menHairCutPrice"));
+            int newPrice = updatedPrices.getInt("menHairCutPrice");
+            if(newPrice<0)
+            {
+                mainPriceObject.setmenHairCutPrice(newPrice*-1);
+            }
+            else{
+                mainPriceObject.setmenHairCutPrice(newPrice);
+            }
             mainPriceObject.setLastUpdated(LocalDateTime.now());
             pricesRepository.save(mainPriceObject);
             System.out.println("Updated Prices: "+mainPriceObject.toString());

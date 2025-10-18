@@ -51,12 +51,17 @@ public class Booking {
         return opening2Id;
     }
 
+    public LocalDateTime getStartTime(){return startTime; }
+
+    public String getPhoneNumber(){return phoneNumber;}
+
+
     public int getPrice() {
         return price;
     }
     public void setPrice(int price){this.price = price;}
 
-    public Booking(String barberUsername, String username, String openingId, int price, String openingInfo, LocalDateTime startTime, LocalDateTime endTime) // בנאי
+    public Booking(String barberUsername, String username, String openingId, int price, String openingInfo, LocalDateTime startTime, LocalDateTime endTime,String phoneNumber) // בנאי
     {
         this.username = username;
         this.barberUsername = barberUsername;
@@ -64,6 +69,7 @@ public class Booking {
         this.openingInfo = openingInfo;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.phoneNumber = phoneNumber;
         System.out.println("startTime for new booking: " + this.startTime);
     }
 
